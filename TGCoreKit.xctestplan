@@ -1,0 +1,27 @@
+{
+  "configurations" : [
+    {
+      "id" : "ABBBFF8D-8BB4-41CE-A65A-B751D0FFBC8C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "TGBaseTests"
+      ],
+      "target" : {
+        "containerPath" : "container:TGBase.xcodeproj",
+        "identifier" : "3BD696DC2C6DEE2D007E837B",
+        "name" : "TGBaseTests"
+      }
+    }
+  ],
+  "version" : 1
+}
