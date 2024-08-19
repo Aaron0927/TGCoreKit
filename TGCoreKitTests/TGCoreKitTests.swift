@@ -1,13 +1,13 @@
 //
-//  TGBaseTests.swift
-//  TGBaseTests
+//  TGCoreKitTests.swift
+//  TGCoreKitTests
 //
 //  Created by kim on 2024/8/15.
 //
 
 import XCTest
 
-final class TGBaseTests: XCTestCase {
+final class TGCoreKitTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

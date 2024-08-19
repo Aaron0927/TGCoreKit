@@ -1,6 +1,6 @@
 //
 //  Util.swift
-//  TGBase
+//  TGCoreKit
 //
 //  Created by kim on 2024/8/16.
 //

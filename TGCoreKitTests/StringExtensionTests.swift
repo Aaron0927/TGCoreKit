@@ -1,12 +1,12 @@
 //
 //  StringExtensionTests.swift
-//  TGBaseTests
+//  TGCoreKitTests
 //
 //  Created by kim on 2024/8/15.
 //
 
 import XCTest
-@testable import TGBase
+@testable import TGCoreKit
 
 class StringExtenstionTests: XCTestCase {
 
