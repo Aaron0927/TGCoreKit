@@ -29,8 +29,13 @@ public var kStatusBarH: CGFloat {
 }
 
 // 导航栏高度
-public var kNavigationBarH: CGFloat {
+public var kNavBarH: CGFloat {
     UINavigationController().navigationBar.frame.size.height
+}
+
+// 状态栏+导航栏高度
+public var kStatusAndNavBarH: CGFloat {
+    kStatusBarH + kNavBarH
 }
 
 // tabbar高度
