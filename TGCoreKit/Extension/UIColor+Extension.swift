@@ -9,6 +9,7 @@ import UIKit
 
 // MARK: - 增加初始化方法
 @objc public extension UIColor {
+    // 16进制创建
     convenience init(hex: UInt32, alpha: CGFloat = 1) {
         let components = (
             R: CGFloat((hex >> 16) & 0xFF) / 255.0,
@@ -52,12 +53,30 @@ import UIKit
         self.init(red: components.R, green: components.G, blue: components.B, alpha: CGFloat(alpha) / 255.0)
     }
     
+    // 使用 0～255 的 RGB 值创建
     convenience init(r: CGFloat, g: CGFloat, b: CGFloat) {
         self.init(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: 1.0)
     }
     
+    // 随机颜色
     static var randomColor: UIColor {
         UIColor(r: CGFloat.random(in: 0..<255), g: CGFloat.random(in: 0..<255), b: CGFloat.random(in: 0..<255))
+    }
+    
+    // 从 UIColor 中获取 RGBA 色值
+    @nonobjc func rgbaValue() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        // 获取 RGB 分量
+        if self.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+            return (red * 255, green * 255, blue * 255, alpha)
+        } else {
+            // 返回默认值
+            return (0, 0, 0, 1)
+        }
     }
 }
 
