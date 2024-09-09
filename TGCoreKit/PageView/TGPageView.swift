@@ -10,6 +10,15 @@ import UIKit
 private let kCellID: String = "kCellID"
 
 private class TGNestScrollView: UIScrollView, UIGestureRecognizerDelegate {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     /// 这是实现手势穿透的关键代码。
     /// 返回 YES 允许两者同时识别。 默认实现返回 NO（默认情况下不能同时识别两个手势）
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -39,14 +48,17 @@ private class TGCollectionView: UICollectionView, UIGestureRecognizerDelegate {
     }
 }
 
-class TGPageView: UIView {
+public class TGPageView: UIView {
     // MARK: - 懒加载属性
     private lazy var scrollView: TGNestScrollView = {
         let scrollView = TGNestScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = .white
         scrollView.showsVerticalScrollIndicator = false
         scrollView.delegate = self
-        scrollView.automaticallyAdjustsScrollIndicatorInsets = false
+        if #available(iOS 13.0, *) {
+            scrollView.automaticallyAdjustsScrollIndicatorInsets = false
+        }
         if #available(iOS 11.0, *) {
             scrollView.contentInsetAdjustmentBehavior = .never
         }
@@ -56,6 +68,7 @@ class TGPageView: UIView {
     
     private lazy var scrollContentView: UIStackView = {
         let view = UIStackView()
+        view.translatesAutoresizingMaskIntoConstraints = false
         view.axis = .vertical
         return view
     }()
@@ -66,8 +79,9 @@ class TGPageView: UIView {
         layout.minimumInteritemSpacing = 0
         layout.sectionInset = .zero
         layout.scrollDirection = .horizontal
-        
+                
         let collectionView = TGCollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.showsVerticalScrollIndicator = false
@@ -127,26 +141,27 @@ class TGPageView: UIView {
     private var startOffsetX: CGFloat = 0
     private var isForbidScrollDelegate: Bool = false // 是否禁止滚动
     private weak var parentController: UIViewController?
-    weak var delegate: TGPageDelegate?
+    public weak var delegate: TGPageDelegate?
 
     // MARK: - 系统回调
-    init(parentController: UIViewController) {
+    public init(parentController: UIViewController) {
         self.parentController = parentController
         super.init(frame: .zero)
+        self.translatesAutoresizingMaskIntoConstraints = false
     }
     
     required init?(coder: NSCoder) {
         fatalError("init coder")
     }
     
-    override func didMoveToSuperview() {
+    public override func didMoveToSuperview() {
         super.didMoveToSuperview()
         
         subviews.forEach { $0.removeFromSuperview()}
         setupUI()
     }
     
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         
         // 父 scrollView 不可以滚动时设置子视图滚动
@@ -161,20 +176,35 @@ extension TGPageView {
     private func setupUI() {
         addSubview(scrollView)
         scrollView.addSubview(scrollContentView)
-        scrollView.snp.makeConstraints { make in
-            make.left.right.top.bottom.equalToSuperview()
-        }
-        scrollContentView.snp.makeConstraints { make in
-            make.left.right.top.bottom.equalToSuperview()
-            make.width.equalToSuperview()
-        }
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            
+            scrollContentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            scrollContentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            scrollContentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            scrollContentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            scrollContentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+        ])
+//        scrollView.snp.makeConstraints { make in
+//            make.left.right.top.bottom.equalToSuperview()
+//        }
+//        scrollContentView.snp.makeConstraints { make in
+//            make.left.right.top.bottom.equalToSuperview()
+//            make.width.equalToSuperview()
+//        }
         
         if let topView = delegate?.topViewForPageView(self) {
             scrollContentView.addArrangedSubview(topView)
             let topViewH = delegate?.topViewHeightForPageView(self) ?? 0
-            topView.snp.makeConstraints { make in
-                make.height.equalTo(topViewH)
-            }
+            NSLayoutConstraint.activate([
+                topView.heightAnchor.constraint(equalToConstant: topViewH)
+            ])
+//            topView.snp.makeConstraints { make in
+//                make.height.equalTo(topViewH)
+//            }
         }
         
         // 创建 pageTitleView
@@ -187,15 +217,21 @@ extension TGPageView {
         if let pageTitleView = pageTitleView {
             titlePageViewH = self.delegate?.pageTitleViewHeightForPageView(self) ?? 40
             scrollContentView.addArrangedSubview(pageTitleView)
-            pageTitleView.snp.makeConstraints { make in
-                make.height.equalTo(titlePageViewH)
-            }
+            NSLayoutConstraint.activate([
+                pageTitleView.heightAnchor.constraint(equalToConstant: titlePageViewH)
+            ])
+//            pageTitleView.snp.makeConstraints { make in
+//                make.height.equalTo(titlePageViewH)
+//            }
         }
 
         scrollContentView.addArrangedSubview(collectionView)
-        collectionView.snp.makeConstraints { make in
-            make.height.equalTo(self).offset(-titlePageViewH)
-        }
+        NSLayoutConstraint.activate([
+            collectionView.heightAnchor.constraint(equalTo: self.heightAnchor, constant: -titlePageViewH)
+        ])
+//        collectionView.snp.makeConstraints { make in
+//            make.height.equalTo(self).offset(-titlePageViewH)
+//        }
         
         controllers.forEach {
             self.parentController?.addChild($0)
@@ -206,11 +242,11 @@ extension TGPageView {
 
 // MARK: - UICollectionViewDataSource
 extension TGPageView: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return controllers.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: kCellID, for: indexPath) as! TGPageCollectionViewCell
         cell.configure(with: controllers[indexPath.item])
         
@@ -220,14 +256,14 @@ extension TGPageView: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension TGPageView: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: collectionView.frame.height)
     }
 }
 
 // MARK: - UIScrollView Delegate
 extension TGPageView: UIScrollViewDelegate {
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         // 防止 collectionView 滚动的时候，scrollView 上下滚动
         if scrollView == self.collectionView {
             self.scrollView.isScrollEnabled = false
@@ -238,7 +274,7 @@ extension TGPageView: UIScrollViewDelegate {
         }
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView == self.scrollView {
             // TODO: 这里视图布局不确定，所以最大偏移量也不确定
             let maxOffset: CGFloat = pageTitleView?.frame.minY ?? 0
@@ -281,7 +317,7 @@ extension TGPageView: UIScrollViewDelegate {
         }
     }
     
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if scrollView == self.collectionView {
             self.scrollView.isScrollEnabled = true
         } else if scrollView == self.scrollView {
@@ -289,7 +325,7 @@ extension TGPageView: UIScrollViewDelegate {
         }
     }
     
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if scrollView == self.collectionView {
             let index = Int(scrollView.contentOffset.x / scrollView.bounds.width)
             pageTitleView?.update(targetIndex: index)

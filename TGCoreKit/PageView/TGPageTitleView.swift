@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import TGCoreKit
 
 protocol TGPageTitleDelegate {
     func pageTitle(pageTitleView: TGPageTitleView, didSelectAt index: Int)
@@ -16,8 +15,22 @@ protocol TGPageTitleDelegate {
 private let kLineW: CGFloat = 10
 private let kLineH: CGFloat = 3
 
-class TGPageTitleView: UIView {
+public class TGPageTitleView: UIView {
+    enum LayoutType {
+        case none
+        case center
+    }
+    
+    
     // MARK: - 视图属性
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.bounces = false
+        return scrollView
+    }()
+    
     private lazy var contentStack: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -33,6 +46,7 @@ class TGPageTitleView: UIView {
     private var titles: [String]
     private var titleLabels: [UILabel] = []
     private var currentSelectIndex: Int = 0
+    private var contentStackWidthConstraint: NSLayoutConstraint?
     var delegate: TGPageTitleDelegate?
     
     // MARK: - 配置属性
@@ -75,9 +89,23 @@ class TGPageTitleView: UIView {
         }
     }
 
+    // 是否可以滚动，默认 true
+    public var isScrollEnable: Bool = true {
+        didSet {
+            if isScrollEnable {
+                NSLayoutConstraint.deactivate([
+                    contentStackWidthConstraint!
+                ])
+            } else {
+                NSLayoutConstraint.activate([
+                    contentStackWidthConstraint!
+                ])
+            }
+        }
+    }
     
     // MARK: - 系统方法回调
-    init(titles: [String]) {
+    public init(titles: [String]) {
         self.titles = titles
         super.init(frame: .zero)
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -92,13 +120,29 @@ class TGPageTitleView: UIView {
 // MARK: - 设置 UI
 extension TGPageTitleView {
     private func setupView() {
-        addSubview(contentStack)
+        contentStackWidthConstraint = contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        
+        addSubview(scrollView)
+        scrollView.addSubview(contentStack)
         NSLayoutConstraint.activate([
-            contentStack.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            contentStack.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            contentStack.heightAnchor.constraint(equalTo: self.heightAnchor),
-            contentStack.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor),
-            contentStack.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor),
+            // scrollView
+            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            
+            // contentStack
+            contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentStack.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+            
+//            contentStack.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+//            contentStack.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+//            contentStack.heightAnchor.constraint(equalTo: self.heightAnchor),
+//            contentStack.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor),
+//            contentStack.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor),
         ])
         
         for (index, title) in self.titles.enumerated() {

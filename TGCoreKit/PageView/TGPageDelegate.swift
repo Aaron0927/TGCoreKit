@@ -8,7 +8,7 @@
 import UIKit
 
 // MARK: - 容器视图协议
-protocol TGPageDelegate: NSObjectProtocol {
+public protocol TGPageDelegate: NSObjectProtocol {
     // 头部视图
     func topViewForPageView(_ pageView: TGPageView) -> UIView?
     // 头部视图高度
@@ -25,7 +25,7 @@ protocol TGPageDelegate: NSObjectProtocol {
     func controllersForPageView(_ pageView: TGPageView) -> [TGPageContent]
 }
 
-extension TGPageDelegate {
+public extension TGPageDelegate {
     // 头部视图
     func topViewForPageView(_ pageView: TGPageView) -> UIView? {
         return nil
@@ -51,7 +51,7 @@ extension TGPageDelegate {
 
 
 // MARK: - 子视图应该实现的协议
-protocol TGPageContent where Self: UIViewController {
+public protocol TGPageContent where Self: UIViewController {
     var canScroll: Bool { set get }
     var scrollView: UIScrollView? { get }
     

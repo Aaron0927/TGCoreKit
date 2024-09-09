@@ -79,9 +79,6 @@ public let deviceUUID: String = UIDevice.current.identifierForVendor?.uuidString
 
 
 // MARK: - 设计通用尺寸
-// 分割线高度
-public let kLineH: CGFloat = 0.5
-
 // 设计图基准线 -> 只用于间隔
 private let d_baseLine: CGFloat = 2.0
 public func d_padding(_ multiple: Int) -> CGFloat {
