@@ -18,3 +18,8 @@ public extension CGRect {
         return rect
     }
 }
+
+// MARK: - 版本号判断
+public func system_version_equal_to<T: StringProtocol>(v: T) -> ComparisonResult {
+    UIDevice.current.systemVersion.compare(v, options: .numeric)
+}

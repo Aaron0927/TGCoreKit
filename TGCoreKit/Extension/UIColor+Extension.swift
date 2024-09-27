@@ -10,6 +10,7 @@ import UIKit
 // MARK: - 增加初始化方法
 @objc public extension UIColor {
     // 16进制创建
+    @objc(initWithHex:alpha:)
     convenience init(hex: UInt32, alpha: CGFloat = 1) {
         let components = (
             R: CGFloat((hex >> 16) & 0xFF) / 255.0,
@@ -19,7 +20,13 @@ import UIKit
         self.init(red: components.R, green: components.G, blue: components.B, alpha: alpha)
     }
     
+    @objc(colorWithHex:alpha:)
+    static func hex(_ hex: UInt32, alpha: CGFloat = 1) -> UIColor {
+        return UIColor(hex: hex, alpha: alpha)
+    }
+    
     // 为方便起见，仅处理 6 位 和 8 位字符串形式
+    @objc(initWithHex:)
     convenience init(hex: String) {
         var hexString = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -53,6 +60,11 @@ import UIKit
         self.init(red: components.R, green: components.G, blue: components.B, alpha: CGFloat(alpha) / 255.0)
     }
     
+    @objc(colorWithHex:)
+    static func hex(_ hex: String) -> UIColor {
+        return UIColor(hex: hex)
+    }
+    
     // 使用 0～255 的 RGB 值创建
     convenience init(r: CGFloat, g: CGFloat, b: CGFloat) {
         self.init(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: 1.0)
@@ -78,24 +90,4 @@ import UIKit
             return (0, 0, 0, 1)
         }
     }
-}
-
-// MARK: - 定义设计图颜色
-@objc public extension UIColor {
-    // 行情图表相关颜色
-    static var app_red: UIColor { UIColor(hex: "#F54346") }
-    static var app_green: UIColor { UIColor(hex: "#16BA70") }
-    static var app_blue: UIColor { UIColor(hex: "#308FFF") }
-    static var app_gray: UIColor { UIColor(hex: "0x999999") }
-    
-    // 文本颜色
-    static var app_text_primary_dark: UIColor { UIColor(hex: "#333333") }
-    
-    // 背景颜色
-    static var app_bg_dark: UIColor { UIColor(hex: "0x141a26") }
-    
-    // 边框颜色
-    
-    // 分割线颜色
-    
 }
